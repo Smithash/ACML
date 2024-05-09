@@ -19,7 +19,8 @@ def K_Means(data, cluster_centers, K):
     
     while(True):
         
-        #Compute the minimum distance for each datapoint
+        #Compute the distance for each datapoint (datapoints - cluster_centers)
+        #np.linalg.norm -> euclidean norm and saying axis =-1 compute the norm along last axis which calculates the euclidean distance
         distances = np.linalg.norm(data[:, np.newaxis] - cluster_centers, axis=-1)
         #assign x to its cluster where the distance is a minimum 
         assignments = np.argmin(distances, axis=1)
@@ -44,7 +45,7 @@ def sum_of_squares_error(data, cluster_centres, assignments):
         cluster_points = data[np.where(assignments == i)]  # Get data points assigned to the current centroid
         distances = np.linalg.norm(cluster_points - centroid, axis=1)  # Calculate distance to centroid
         sse += np.sum(distances ** 2)  # Sum of squared distances
-    return np.round(sse,4)
+    return np.round(sse,4) #round to 4 decimals
 
 def main():
     #1. Number of clusters is 3
