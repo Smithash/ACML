@@ -1,68 +1,75 @@
 import numpy as np
+import time
+import math
 
-#Implementing K-means
+#Using numoy is signifcantly slower than just using math library
+# 2. Dataset
+data = [[0.22, 0.33], [0.45, 0.76], [0.73, 0.39], [0.25, 0.35], [0.51, 0.69],
+                 [0.69, 0.42], [0.41, 0.49], [0.15, 0.29], [0.81, 0.32], [0.50, 0.88],
+                 [0.23, 0.31], [0.77, 0.30], [0.56, 0.75], [0.11, 0.38], [0.81, 0.33],
+                 [0.59, 0.77], [0.10, 0.89], [0.55, 0.09], [0.75, 0.35], [0.44, 0.55]]
 
+def e_distance(point1, point2):
+    return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-
-#2. Dataset
-data = np.array([[0.22, 0.33], [0.45, 0.76], [0.73, 0.39], [0.25, 0.35], 
-                [0.51, 0.69], [0.69, 0.42], [0.41, 0.49], [0.15,0.29],
-                [0.81, 0.32], [0.50, 0.88], [0.23, 0.31], [0.77, 0.30],
-                [0.56, 0.75], [0.11, 0.38], [0.81, 0.33], [0.59, 0.77],
-                [0.10, 0.89], [0.55, 0.09], [0.75, 0.35], [0.44, 0.55]])
-
-
-#4. Run k-means Algorithm using hard coded dataset and starting eith cluster centres
-    #5. halt when centres have converged
-def K_Means(data, cluster_centers, K):
-    initial_centres = cluster_centers
-    
-    while(True):
+def assign_clusters(data, cluster_centers, K):
+    assign = [[] for _ in range(K)]
+    for d in data:
+        distance = [e_distance(d, cluster_center) for cluster_center in cluster_centers]
+        cluster_idx = distance.index(min(distance))
+        assign[cluster_idx].append(d)
+    return assign
+# 4. Run k-means Algorithm using hard coded dataset and starting with cluster centers
+# 5. Halt when centers have converged
+def K_Means(data, initial_centers, K):
+    cluster_centers = np.array(initial_centers)
+    prev_centers = None
+    while True:
+        # Compute squared distances and assign data points to clusters
+        assignments = assign_clusters(data, cluster_centers, K)
         
-        #Compute the distance for each datapoint (datapoints - cluster_centers)
-        #np.linalg.norm -> euclidean norm and saying axis =-1 compute the norm along last axis which calculates the euclidean distance
-        distances = np.linalg.norm(data[:, np.newaxis] - cluster_centers, axis=-1)
-        #assign x to its cluster where the distance is a minimum 
-        assignments = np.argmin(distances, axis=1)
+        # Update centers
+        new_centers =[]
+        for a in assignments:
+            if a:
+                x_sum = sum(point[0] for point in a)
+                y_sum = sum(point[1] for point in a)
+                new_center = (x_sum/len(a), y_sum/len(a))
+                new_centers.append(new_center)
 
-        #Update the centres
-        new_centers = np.array([data[assignments == i].mean(axis=0) for i in range(K)])
-        
-        if np.all(cluster_centers == new_centers):
+        # Check if centers have converged
+        if np.allclose(cluster_centers, new_centers):
             break
-        
         cluster_centers = new_centers
-        
+
     return cluster_centers, assignments
-        
 
-    
-
-#6. sum of squares error
-def sum_of_squares_error(data, cluster_centres, assignments):
-    sse = 0
-    for i, centroid in enumerate(cluster_centres):
-        cluster_points = data[np.where(assignments == i)]  # Get data points assigned to the current centroid
-        distances = np.linalg.norm(cluster_points - centroid, axis=1)  # Calculate distance to centroid
-        sse += np.sum(distances ** 2)  # Sum of squared distances
-    return np.round(sse,4) #round to 4 decimals
+# 6. Sum of squares error
+def sum_of_squares_error(data, cluster_centers, assignments):
+    sum_of_squares_error = 0
+    for i, cluster in enumerate(assignments):
+        for point in cluster:
+            sum_of_squares_error += e_distance(point, cluster_centers[i])**2
+    print(f"{sum_of_squares_error:.4f}")
 
 def main():
-    #1. Number of clusters is 3
+    # 1. Number of clusters is 3
     K = 3
+
+    # 3. Read in from standard input a list of 6 numbers
+    cluster_centers = []
     
-    #3. Read in from standard input a list of 6 numbers
-    cluster_centers =[]
     for _ in range(3):
         x = float(input())
         y = float(input())
-        cluster_centers.append((x,y))
-    
-    #4. K-Means
+        cluster_centers.append((x, y))
+
+    # 4. K-Means
     final_cluster_centers, assignments = K_Means(data, cluster_centers, K)
-    output = sum_of_squares_error(data, final_cluster_centers, assignments)
-    print(output)
+    sum_of_squares_error(data, final_cluster_centers, assignments)
     
     
+   
+
 if __name__ == "__main__":
     main()
