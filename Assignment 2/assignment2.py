@@ -1,5 +1,5 @@
 import math
-
+import time
 # Dataset consisting of datapoints in R^2
 data = [(0.22, 0.33), (0.45, 0.76), (0.73, 0.39), (0.25, 0.35), (0.51, 0.69),
         (0.69, 0.42), (0.41, 0.49), (0.15, 0.29), (0.81, 0.32), (0.50, 0.88),
@@ -34,6 +34,7 @@ def update_centroids(clusters):
     return centroids
 
 # Read initial cluster centroids from input
+stime= time.time()
 centroids = []
 for _ in range(3):
         x = float(input())
@@ -52,6 +53,8 @@ sum_of_squares_error = 0
 for i, cluster in enumerate(clusters):
     for point in cluster:
         sum_of_squares_error += euclidean_distance(point, centroids[i])**2
+etime = time.time()
 
 # Print sum-of-squares error rounded to 4 decimal places
 print(f"{sum_of_squares_error:.4f}")
+print(etime - stime)
