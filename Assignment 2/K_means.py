@@ -22,9 +22,10 @@ def assign_clusters(data, cluster_centers, K):
 # 4. Run k-means Algorithm using hard coded dataset and starting with cluster centers
 # 5. Halt when centers have converged
 def K_Means(data, initial_centers, K):
-    cluster_centers = np.array(initial_centers)
+    cluster_centers = initial_centers
     prev_centers = None
-    while True:
+    while prev_centers != cluster_centers:
+        prev_centers = cluster_centers
         # Compute squared distances and assign data points to clusters
         assignments = assign_clusters(data, cluster_centers, K)
         
@@ -38,8 +39,7 @@ def K_Means(data, initial_centers, K):
                 new_centers.append(new_center)
 
         # Check if centers have converged
-        if np.allclose(cluster_centers, new_centers):
-            break
+        
         cluster_centers = new_centers
 
     return cluster_centers, assignments
